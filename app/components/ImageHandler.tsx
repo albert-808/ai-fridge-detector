@@ -1,19 +1,22 @@
 "use client";
 import React, { useState, useRef } from "react";
+import IngredientsRender from "./IngredientsRender";
 
 export default function ImageHandler() {
-  const [imagePreview, setImagePreview] = useState(null);
-  const [result, setResult] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [resultOutput, setResultOutput] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   // Image is set as a base64 payload
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
 
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreview(e.target.result);
+        if (e.target && e.target.result) {
+          setImagePreview(e.target.result as string);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -24,7 +27,6 @@ export default function ImageHandler() {
       setErrorMessage("No image found. Please upload an image.");
       return;
     }
-
     try {
       const response = await fetch("/api/scanFridgeImage", {
         method: "POST",
@@ -32,7 +34,7 @@ export default function ImageHandler() {
         body: JSON.stringify({
           imageBase64: imagePreview.split(",")[1],
           prompt:
-            "Analyze the following image and provide a list all visible ingredients. For each ingredient approximate quantities.",
+            'Analyze the following refrigerator image and provide the results in JSON format. Generate two lists: \'ingredients\' and \'exceptions\'. \'ingredients\' should be an array of objects, each with \'category\', \'name\', and \'quantity\' keys. Use numbers for quantities when possible (e.g., \'1 pitcher, \'1 bunch\', \'1 container\'). \'exceptions\' should be an array of strings. Example: {"ingredients": [{"category": "produce", "name": "lettuce", "quantity": "0.5 head"}, {"category": "produce", "name": "apples", "quantity": "3"}], "exceptions": ["medicine", "cleaning supplies"]}',
         }),
       });
 
@@ -42,7 +44,7 @@ export default function ImageHandler() {
       }
 
       const result = await response.json();
-      setResult(result.output);
+      setResultOutput(result.output);
     } catch (error) {
       console.error("Error sending requset:", error);
       setErrorMessage("Error with sending request.");
@@ -91,7 +93,6 @@ export default function ImageHandler() {
           )}
         </form>
       </div>
-
       {/* Submit image for analyzing */}
       {imagePreview && (
         <button
@@ -102,12 +103,16 @@ export default function ImageHandler() {
           Submit
         </button>
       )}
-
       {errorMessage && (
-        <div className="text-xl font-bold text-red">ERROR: {errorMessage}</div>
+        <div className="text-xl font-bold text-red-20">
+          ERROR: {errorMessage}
+        </div>
       )}
-
-      {result && <div className="mt-8">{result}</div>}
+      {resultOutput && (
+        <div className="mt-8">
+          <IngredientsRender result={resultOutput} />
+        </div>
+      )}
     </div>
   );
 }
