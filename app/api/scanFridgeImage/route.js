@@ -11,15 +11,18 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 
 export async function POST(event) {
+    console.log(API_KEY?"Key is here": "Non Key found")
+    
     if (event.method !== "POST") {
-        return NextResponse.error("Method not allowed", { status: 405 });
+        return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
     }
     
     try {
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" }); 
         const { imageBase64, prompt } = await event.json();
-
+        
+        console.log("starting route")
         const result = await model.generateContent([
             {
             inlineData: {
@@ -29,10 +32,11 @@ export async function POST(event) {
             },
             prompt,
           ]);
-
+        console.log("Request completed")
         const response = result.response
-        const text = response.text()
+        const text = await response.text()
 
+        console.log("Response completed")
         return NextResponse.json({ output: text });
         
     } catch (error) {

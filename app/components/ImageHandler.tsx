@@ -45,12 +45,12 @@ export default function ImageHandler() {
         const error = await response.json();
         console.error("Error with analyzing image:", error);
       }
-
+      console.log("Obtained Result");
       const result = await response.json();
       setResultOutput(result.output);
     } catch (error) {
       console.error("Error sending requset:", error);
-      setErrorMessage("Error with sending request.");
+      setErrorMessage(`Error with sending request: ${error}`);
     }
   };
 
