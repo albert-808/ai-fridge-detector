@@ -5,7 +5,9 @@ import IngredientsRender from "./IngredientsRender";
 export default function ImageHandler() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [resultOutput, setResultOutput] = useState("");
+  const [statusMessages, setStatusMessages] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isGridVisible, setIsGridVisible] = useState(false);
 
   // Image is set as a base64 payload
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,6 +25,7 @@ export default function ImageHandler() {
   };
 
   const handleSubmit = async () => {
+    setIsGridVisible(true);
     if (!imagePreview) {
       setErrorMessage("No image found. Please upload an image.");
       return;
@@ -52,67 +55,91 @@ export default function ImageHandler() {
   };
 
   return (
-    <div>
-      <div>
-        <h1 className="text-center text-6xl font-bold max-lg:text-5xl max-md:text-4xl max-[370px]:text-3xl">
-          What's in your fridge
-        </h1>
-        <ol className="list-inside list-decimal text-center font-mono">
-          <li>Take a picture of your fridge.</li>
-          <li>Click Upload Image to preview.</li>
-          <li>Click Submit to begin analyzing.</li>
-        </ol>
-      </div>
-      {/* Form to upload an image */}
-      <div className="w-[940px] max-lg:w-full flex flex-col items-center bg-white border border-dashed rounded-2xl p-8 mt-8 gap-4">
-        <form className="flex flex-col gap-4 items-center">
-          <div className="flex items-center justify-center w-full">
-            <label
-              htmlFor="file-upload"
-              className="bg-gray-300 hover:bg-gray-200 text-gray-00 py-2 px-4 rounded cursor-pointer"
-            >
-              Upload Image
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageChange}
-            />
-          </div>
-          {/* Preview uploaded image */}
-          {imagePreview && (
-            <div className="mt-4">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="max-w-xs max-h-64 rounded-lg shadow-md"
-              />
+    <div className="bg-[#20b2aa] bg-[url(/bg_pizza.png)] bg-center bg-no-repeat bg-blend-overlay font-sans flex justify-center items-center min-h-screen md:bg-contain sm:bg-cover">
+      <div className="container">
+        <div className="text-center">
+          <h1 className="text-6xl text-white font-extrabold leading-tight max-lg:leading-snug max-md:leading-normal max-[370px]:leading-relaxed">
+            What's in your fridge?
+          </h1>
+          <p className="text-lg font-bold text-white mx-auto max-w-2xl sm:text-xl pb-4 leading-relaxed">
+            {" "}
+            Snap a photo of your fridge and our AI will automatically identify
+            and catalogue your food items to effortlessly track your groceries.{" "}
+          </p>
+        </div>
+        <div className="container mx-auto max-w-7xl flex justify-center">
+          <div
+            className={
+              isGridVisible
+                ? "grid grid-cols-1 gap-8 lg:grid-cols-2"
+                : "grid-cols-1"
+            }
+          >
+            <div className="bg-white backdrop-blur-sm p-8 w-[400px] text-center shadow-md rounded-md relative z-10 w-full h-full">
+              <div className="bg-[#ffd700] text-black p-2 mb-4 shadow-md rounded-md w-full">
+                <h2 className="text-xl font-semibold">Picture Upload</h2>
+              </div>
+
+              <p>
+                Upload a picture by drag and drop or click and browse. Cloick on
+                the SUBMIT button to have our AI analyze your fridge.
+              </p>
+
+              <div
+                id="uploadArea"
+                className="border-2 border-dashed border-gray-300 p-4 mb-4 rounded-md cursor-pointer hover:border-gray-400 transition-colors duration-200"
+              >
+                <input
+                  type="file"
+                  id="fileInput"
+                  multiple
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+
+                {/* Preview uploaded image */}
+                {imagePreview && (
+                  <div className="flex justify-center mt-4">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="max-w-xs max-h-64 rounded-lg  pb-4"
+                    />
+                  </div>
+                )}
+                <label
+                  htmlFor="fileInput"
+                  className="bg-[#00bfff] hover:bg-blue-600 transition-colors duration-200 text-white rounded-md cursor-pointer px-4 py-2"
+                >
+                  Choose file..
+                </label>
+              </div>
+
+              {/* Submit image for analyzing */}
+              {imagePreview && (
+                <button
+                  className="bg-[#008000] hover:bg-green-300 transition-colors duration-200 text-white font-bold rounded w-full cursor-pointer py-2 px-4"
+                  type="submit"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </button>
+              )}
             </div>
-          )}
-        </form>
+
+            {resultOutput && (
+              <div className="h-full">
+                <IngredientsRender result={resultOutput} />
+              </div>
+            )}
+            {errorMessage && (
+              <div className="text-xl font-bold text-red-20">
+                ERROR: {errorMessage}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-      {/* Submit image for analyzing */}
-      {imagePreview && (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          type="submit"
-          onClick={handleSubmit}
-        >
-          Submit
-        </button>
-      )}
-      {errorMessage && (
-        <div className="text-xl font-bold text-red-20">
-          ERROR: {errorMessage}
-        </div>
-      )}
-      {resultOutput && (
-        <div className="mt-8">
-          <IngredientsRender result={resultOutput} />
-        </div>
-      )}
     </div>
   );
 }
