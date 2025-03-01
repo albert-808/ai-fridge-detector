@@ -1,26 +1,34 @@
 "use client";
 import React, { useState, useRef } from "react";
 import IngredientsRender from "./IngredientsRender";
+import CompressImage from "../utils/CompressImage";
+
+type ImagePreview = {
+  forDisplay: string;
+  base64: string;
+};
 
 export default function ImageHandler() {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<ImagePreview | null>(null);
   const [resultOutput, setResultOutput] = useState("");
-  const [statusMessages, setStatusMessages] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isGridVisible, setIsGridVisible] = useState(false);
 
-  // Image is set as a base64 payload
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
+    const imageFile = event.target.files ? event.target.files[0] : null;
 
-    if (file) {
+    if (imageFile) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         if (e.target && e.target.result) {
-          setImagePreview(e.target.result as string);
+          const commpressedBase64Image = await CompressImage(imageFile);
+          setImagePreview({
+            forDisplay: e.target.result as string,
+            base64: commpressedBase64Image as string,
+          });
         }
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(imageFile);
     }
   };
 
@@ -35,7 +43,7 @@ export default function ImageHandler() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          imageBase64: imagePreview.split(",")[1],
+          imageBase64: imagePreview.base64,
           prompt:
             "Analyze the following refrigerator image and provide the results in JSON format. Generate two lists: ingredients and exceptions. ingredients should be an array of objects, each with category, name, and quantity keys. Use numbers and units for quantities when possible (e.g., 1 pitcher, 1 bunch, 1 container). exceptions should be an array of strings.",
         }),
@@ -45,7 +53,6 @@ export default function ImageHandler() {
         const error = await response.json();
         console.error("Error with analyzing image:", error);
       }
-      console.error("Obtained Result");
       const result = await response.json();
       setResultOutput(result.output);
     } catch (error) {
@@ -101,7 +108,7 @@ export default function ImageHandler() {
                 {imagePreview && (
                   <div className="flex justify-center mt-4">
                     <img
-                      src={imagePreview}
+                      src={imagePreview.forDisplay}
                       alt="Preview"
                       className="max-w-xs max-h-64 rounded-lg  pb-4"
                     />

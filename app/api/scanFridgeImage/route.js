@@ -11,7 +11,7 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 
 export async function POST(event) {
-    console.log(API_KEY?"Key is here": "Non Key found")
+    !API_KEY&& console.log("Missing the API_KEY")
     
     if (event.method !== "POST") {
         return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
@@ -22,23 +22,27 @@ export async function POST(event) {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" }); 
         const { imageBase64, prompt } = await event.json();
         
-        console.log("starting route")
-        const result = await model.generateContent([
-            {
-            inlineData: {
-                data: imageBase64,
-                mimeType: 'image/jpeg',
-              },
-            },
+        const configs = [
             prompt,
-          ]);
-        console.log("Request completed")
-        const response = result.response
-        const text = await response.text()
+            {
+                inlineData: {
+                    data: imageBase64,
+                    mimeType: 'image/jpeg',
+                },
+            },
+        ]
 
-        console.log("Response completed")
+        console.error("Sending data to Gemini")
+        const result = await model.generateContent(
+         configs);
+        
+         const response = result.response
+         const text = await response.text()
+         console.error("Received a response from request")
+
         return NextResponse.json({ output: text });
         
     } catch (error) {
         console.error("Route error:", error);
+        console.log("Route error:", error);
     }};
