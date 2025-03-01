@@ -37,7 +37,7 @@ export default function ImageHandler() {
         body: JSON.stringify({
           imageBase64: imagePreview.split(",")[1],
           prompt:
-            'Analyze the following refrigerator image and provide the results in JSON format. Generate two lists: \'ingredients\' and \'exceptions\'. \'ingredients\' should be an array of objects, each with \'category\', \'name\', and \'quantity\' keys. Use numbers for quantities when possible (e.g., \'1 pitcher, \'1 bunch\', \'1 container\'). \'exceptions\' should be an array of strings. Example: {"ingredients": [{"category": "produce", "name": "lettuce", "quantity": "0.5 head"}, {"category": "produce", "name": "apples", "quantity": "3"}], "exceptions": ["medicine", "cleaning supplies"]}',
+            "Analyze the following refrigerator image and provide the results in JSON format. Generate two lists: ingredients and exceptions. ingredients should be an array of objects, each with category, name, and quantity keys. Use numbers and units for quantities when possible (e.g., 1 pitcher, 1 bunch, 1 container). exceptions should be an array of strings.",
         }),
       });
 
@@ -45,7 +45,7 @@ export default function ImageHandler() {
         const error = await response.json();
         console.error("Error with analyzing image:", error);
       }
-      console.log("Obtained Result");
+      console.error("Obtained Result");
       const result = await response.json();
       setResultOutput(result.output);
     } catch (error) {
