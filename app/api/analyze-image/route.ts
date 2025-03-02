@@ -11,15 +11,17 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 
 export async function POST(event) {
-    !API_KEY&& console.log("Missing the API_KEY")
-    
+    if (!API_KEY) {
+        return NextResponse.json({ error: "Missing API KEY" }, { status: 405 });
+    }
+
     if (event.method !== "POST") {
         return NextResponse.json({ error: "Method not allowed" }, { status: 405 });
     }
     
     try {
         const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" }); 
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" }); 
         const { imageBase64, prompt } = await event.json();
         
         const configs = [

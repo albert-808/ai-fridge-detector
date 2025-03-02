@@ -1,7 +1,7 @@
 "use Client";
 
 import React, { useState, useEffect } from "react";
-import cleanAndParseJson from "../utils/CleanAndParseJson.tsx";
+import cleanAndParseJson from "../utils/CleanAndParseJson";
 
 interface IngredientsResponse {
   result: string;
