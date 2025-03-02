@@ -13,7 +13,20 @@ export default async function CompressImage(imageFile: File) {
     return base64;
   } catch (error) {
     console.error("Image compression error:", error);
-    return null;
+    let errorMessage = "Image compression failed.";
+
+    if (error instanceof Error) {
+      if (error.message.includes("File size exceeds maxSizeMB")) {
+        errorMessage = "Image is too large to compress.";
+      } else if (error.message.includes("Invalid image format")) {
+        errorMessage = "Invalid image format.";
+      }
+    }
+
+    return {
+      error: errorMessage,
+      details: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 

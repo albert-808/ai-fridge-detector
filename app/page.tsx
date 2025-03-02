@@ -6,7 +6,7 @@ import CompressImage from "./utils/CompressImage";
 import PageHeader from "./components/PageHeader";
 import ImageUpload from "./components/ImageUpload";
 import LoadingSpinner from "./components/LoadingSpinner";
-// import ErrorMessage from "./components/ErrorMessage";
+import ErrorMessage from "./components/ErrorMessage";
 
 type ImagePreview = {
   forDisplay: string;
@@ -59,8 +59,6 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           imageBase64: imagePreview.base64,
-          prompt:
-            "Analyze the following refrigerator image and provide the results in JSON format. Generate two lists: ingredients and exceptions. ingredients should be an array of objects, each with category, name, and quantity keys. Use numbers and units for quantities when possible (e.g., 1 pitcher, 1 bunch, 1 container). exceptions should be an array of strings.",
         }),
       });
 

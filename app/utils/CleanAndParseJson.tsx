@@ -1,7 +1,10 @@
 "use Client";
-import { useState } from "react";
 
 export default function CleanAndParseJson(jsonString: string) {
+  if (typeof jsonString !== "string") {
+    return { error: "Input must be a string." };
+  }
+
   let trimmedString = jsonString.trim();
 
   // Returned JSON from gemini API has fomat ````json {json_data}````
@@ -27,6 +30,23 @@ export default function CleanAndParseJson(jsonString: string) {
   try {
     return JSON.parse(trimmedString);
   } catch (e) {
-    console.log("Invalid JSON after cleaning.");
+    if (e instanceof SyntaxError) {
+      console.error("JSON parsing error:", e.message, "String:", trimmedString);
+      return {
+        error: `Invalid JSON: ${e.message}`,
+        originalString: trimmedString,
+      };
+    } else {
+      console.error(
+        "Unexpected error parsing JSON:",
+        e,
+        "String:",
+        trimmedString
+      );
+      return {
+        error: "Unexpected error parsing JSON.",
+        originalString: trimmedString,
+      };
+    }
   }
 }
