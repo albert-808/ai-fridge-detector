@@ -101,7 +101,9 @@ export default function Home() {
               isCompressing={isCompressing}
             />
             {isLoading && <LoadingSpinner />}
-            {resultOutput && <IngredientsRender result={resultOutput} />}
+            {!isLoading && resultOutput && (
+              <IngredientsRender result={resultOutput} />
+            )}
             {errorMessage && <ErrorMessage message={errorMessage} />}
           </div>
         </div>
